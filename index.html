@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invito Animato Ingrandito</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #E8F5E8, #B8D0B8);
+    overflow: hidden;
+    font-family: 'Playfair Display', serif;
+}
+
+.scene {
+    perspective: 1400px;
+}
+
+/* ================= BUSTA ================= */
+.envelope {
+    position: relative;
+    width: 480px;   
+    height: 330px;  
+    transform-style: preserve-3d;
+}
+
+/* ombra */
+.envelope-shadow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.25), transparent 70%);
+    transform: translateY(60px); 
+    filter: blur(15px); 
+}
+
+/* corpo */
+.envelope-body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #f8f6f0, #ece6d8);
+    border-radius: 15px; 
+    box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+}
+
+/* flap */
+.flap {
+    position: absolute;
+    width: 100%;
+    height: 55%;
+    top: 0;
+    background: linear-gradient(160deg, #f5f1e8, #e6decd);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top;
+    transform: rotateX(0deg);
+    transition: transform 0.9s ease;
+    z-index: 5;
+}
+
+.envelope.opened .flap {
+    transform: rotateX(-180deg);
+    z-index: 0;
+}
+
+/* ================= SIGILLO ================= */
+.seal {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 105px;  
+    height: 105px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 18px 38px rgba(0,0,0,0.4);
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.3s ease, transform 0.3s;
+}
+
+.seal-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.seal:active {
+    transform: translate(-50%, -48%) scale(0.95);
+}
+
+.envelope.opened .seal {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* ================= TESTO APRIMI ================= */
+.hint {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 27px; 
+    color: #6b7d6b;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    pointer-events: none;
+    animation: blink 1.8s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 0.2;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+.envelope.opened .hint {
+    opacity: 0;
+    animation: none;
+}
+
+/* ================= INVITO ================= */
+.invite {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 390px;   
+    height: 540px;  
+    transform: translate(-50%, -50%) scale(0.6) rotateX(90deg);
+    transform-style: preserve-3d;
+    opacity: 0;
+    z-index: 2;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+
+    overflow: hidden; /* Importante: nasconde tutto prima dell’apertura */
+}
+
+.invite.show {
+    animation: emerge 1s forwards;
+}
+
+@keyframes emerge {
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotateX(0deg);
+    }
+}
+
+/* ================= PIEGA ================= */
+.fold {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.top, .bottom {
+    background-image: url('/home/athena/Scaricati/promessa.png');
+    background-size: 100% 200%;
+    background-repeat: no-repeat;
+    backface-visibility: hidden;
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    transition: transform 1s ease;
+}
+
+/* parte superiore nascosta sopra */
+.top {
+    top: 0;
+    background-position: top;
+    transform-origin: bottom;
+    transform: rotateX(-180deg) translateY(-100%);
+}
+
+/* parte inferiore nascosta sotto */
+.bottom {
+    bottom: 0;
+    background-position: bottom;
+    transform: translateY(100%);
+}
+
+/* overlay per effetto piega */
+.top::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
+    transition: 1s;
+}
+
+/* apertura */
+.invite.open .top {
+    transform: rotateX(0deg) translateY(0);
+}
+
+.invite.open .top::after {
+    opacity: 0;
+}
+
+.invite.open .bottom {
+    transform: translateY(0);
+}
+</style>
+</head>
+
+<body>
+<div class="scene">
+    <div class="envelope" id="envelope">
+
+        <div class="envelope-shadow"></div>
+        <div class="envelope-body"></div>
+        <div class="flap"></div>
+
+        <div class="seal" id="seal">
+            <img src="/home/athena/Scaricati/sigillo.png" alt="Sigillo" class="seal-img">
+        </div>
+
+        <div class="hint">Aprimi</div>
+
+        <div class="invite" id="invite">
+            <div class="fold">
+                <div class="top"></div>
+                <div class="bottom"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const seal = document.getElementById('seal');
+const envelope = document.getElementById('envelope');
+const invite = document.getElementById('invite');
+
+let opened = false;
+
+// APERTURA
+seal.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    envelope.classList.add('opened');
+    setTimeout(() => invite.classList.add('show'), 400);
+    setTimeout(() => invite.classList.add('open'), 1100);
+});
+
+// CHIUSURA
+invite.addEventListener('click', () => {
+    if (!opened) return;
+    opened = false;
+    invite.classList.remove('open');
+    setTimeout(() => {
+        invite.classList.remove('show');
+        setTimeout(() => envelope.classList.remove('opened'), 400);
+    }, 600);
+});
+</script>
+</body>
+</html>
